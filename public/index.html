@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BillDecoder — Find Errors in Your Medical Bill</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <div class="logo">💊 BillDecoder</div>
+      <button class="btn-outline" onclick="showPricing()">Pricing</button>
+    </nav>
+    <div class="hero-content">
+      <div class="badge-hero">AI-Powered Medical Bill Analysis</div>
+      <h1>80% of medical bills have errors.<br>Find yours in 60 seconds.</h1>
+      <p class="hero-sub">Upload your bill. Our AI reads every code, compares to Medicare rates, flags overcharges, and writes your dispute letter — automatically.</p>
+      <div class="stats-row">
+        <div class="stat"><span class="stat-n">$1,300</span><span class="stat-l">average error found</span></div>
+        <div class="stat"><span class="stat-n">80%</span><span class="stat-l">of bills have errors</span></div>
+        <div class="stat"><span class="stat-n">60s</span><span class="stat-l">to full analysis</span></div>
+      </div>
+      <button class="btn-primary btn-lg" onclick="scrollToUpload()">Check My Bill Free →</button>
+      <p class="hero-fine">3 free checks per month. No credit card needed.</p>
+    </div>
+  </header>
+
+  <section class="upload-section" id="upload-section">
+    <div class="container">
+      <h2>Upload Your Medical Bill</h2>
+      <p class="section-sub">Works with hospital bills, EOBs, urgent care, specialist visits, lab bills — any medical bill as a photo or screenshot.</p>
+      <div class="upload-card" id="upload-card">
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('bill-input').click()">
+          <div class="upload-icon">📄</div>
+          <p class="upload-title">Drop your bill here or click to upload</p>
+          <p class="upload-hint">JPG, PNG, or WebP · Max 10MB</p>
+          <input type="file" id="bill-input" accept="image/*" style="display:none" onchange="handleFile(this.files[0])">
+        </div>
+        <div class="upload-preview" id="upload-preview" style="display:none">
+          <img id="preview-img" alt="Bill preview">
+          <div class="preview-info">
+            <span id="preview-name"></span>
+            <button class="btn-ghost" onclick="resetUpload()">Change</button>
+          </div>
+        </div>
+        <button class="btn-primary btn-full" id="analyze-btn" onclick="analyzeBill()" style="display:none">🔍 Analyze My Bill</button>
+      </div>
+      <div class="loading-state" id="loading-state" style="display:none">
+        <div class="loader-ring"></div>
+        <h3>Analyzing your bill...</h3>
+        <p id="loading-msg">Reading billing codes...</p>
+      </div>
+      <div class="results" id="results" style="display:none">
+        <div class="results-header">
+          <div class="results-score" id="results-score">
+            <span class="score-icon" id="score-icon">⚠️</span>
+            <div><h3 id="score-title">Issues Found</h3><p id="score-sub"></p></div>
+          </div>
+          <button class="btn-ghost" onclick="resetUpload()">Analyze Another Bill</button>
+        </div>
+        <div class="summary-grid" id="summary-grid"></div>
+        <div class="section-block" id="red-flags-section" style="display:none">
+          <h3 class="block-title">🚨 Issues Found</h3>
+          <div id="red-flags-list"></div>
+        </div>
+        <div class="section-block">
+          <h3 class="block-title">📋 Line-by-Line Breakdown</h3>
+          <div class="table-wrap">
+            <table class="items-table" id="items-table">
+              <thead><tr><th>Service</th><th>CPT</th><th>Billed</th><th>Fair Price</th><th>Status</th></tr></thead>
+              <tbody id="items-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section-block" id="rec-section" style="display:none">
+          <h3 class="block-title">✅ What To Do Next</h3>
+          <div id="rec-list"></div>
+        </div>
+        <div class="section-block letter-section" id="letter-section" style="display:none">
+          <h3 class="block-title">✉️ Your Dispute Letter — Ready to Send</h3>
+          <p class="letter-hint">Copy this letter, add your details, and send to your provider.</p>
+          <div class="letter-box">
+            <div class="letter-header" id="letter-subject"></div>
+            <div class="letter-body" id="letter-body"></div>
+          </div>
+          <button class="btn-primary" onclick="copyLetter()">📋 Copy Letter</button>
+          <button class="btn-outline" onclick="downloadLetter()">⬇️ Download .txt</button>
+        </div>
+        <div class="disclaimer"><strong>Disclaimer:</strong> BillDecoder provides informational analysis only, not legal or medical advice. Always consult a qualified professional for billing disputes.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps-grid">
+        <div class="step"><div class="step-num">1</div><h3>Upload Your Bill</h3><p>Take a photo or screenshot of any medical bill, EOB, or hospital statement.</p></div>
+        <div class="step"><div class="step-num">2</div><h3>AI Reads Every Code</h3><p>Our AI reads each billing code and compares charges to Medicare's published rates.</p></div>
+        <div class="step"><div class="step-num">3</div><h3>Get Your Report</h3><p>See exactly which charges are suspicious, overpriced, or potentially wrong.</p></div>
+        <div class="step"><div class="step-num">4</div><h3>Send Your Letter</h3><p>Use the AI-written dispute letter to contest charges directly with your provider.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing-section" id="pricing-section">
+    <div class="container">
+      <h2>Simple Pricing</h2>
+      <p class="section-sub">One analysis can save you hundreds.</p>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-name">Free</div>
+          <div class="price-amount">$0</div>
+          <div class="price-per">/month</div>
+          <ul class="price-features">
+            <li>✅ 3 bill analyses/month</li>
+            <li>✅ Full line-item breakdown</li>
+            <li>✅ Error detection</li>
+            <li>✅ Dispute letter</li>
+          </ul>
+          <button class="btn-outline btn-full" onclick="scrollToUpload()">Start Free</button>
+        </div>
+        <div class="price-card price-featured">
+          <div class="price-badge">Most Popular</div>
+          <div class="price-name">Pro</div>
+          <div class="price-amount">$9.99</div>
+          <div class="price-per">/month</div>
+          <ul class="price-features">
+            <li>✅ Unlimited analyses</li>
+            <li>✅ Priority AI processing</li>
+            <li>✅ Full error detection</li>
+            <li>✅ Custom dispute letters</li>
+            <li>✅ Save &amp; track disputes</li>
+          </ul>
+          <button class="btn-primary btn-full" onclick="checkout('pro')">Get Pro</button>
+        </div>
+        <div class="price-card">
+          <div class="price-name">Family</div>
+          <div class="price-amount">$19.99</div>
+          <div class="price-per">/month</div>
+          <ul class="price-features">
+            <li>✅ Everything in Pro</li>
+            <li>✅ Up to 5 family members</li>
+            <li>✅ Shared dispute tracker</li>
+            <li>✅ Family bill history</li>
+          </ul>
+          <button class="btn-outline btn-full" onclick="checkout('family')">Get Family</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>💊 BillDecoder — Not legal or medical advice. For informational purposes only.</p>
+      <p style="margin-top:8px;opacity:.6;font-size:13px">© 2026 BillDecoder. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+  <script src="/js/app.js"></script>
+</body>
+</html>
